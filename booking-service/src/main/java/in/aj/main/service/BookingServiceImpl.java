@@ -14,9 +14,13 @@ import org.springframework.stereotype.Service;
 
 import in.aj.main.dto.BookingResponse;
 import in.aj.main.dto.CreateBookingRequest;
+import in.aj.main.dto.EventResponseDTO;
+import in.aj.main.dto.UserResponseDTO;
 import in.aj.main.entity.Booking;
 import in.aj.main.entity.BookingStatus;
 import in.aj.main.exception.ResourceNotFoundException;
+import in.aj.main.feign.client.EventServiceClient;
+import in.aj.main.feign.client.UserServiceClient;
 import in.aj.main.repository.BookingRepository;
 
 @Service
@@ -24,11 +28,27 @@ import in.aj.main.repository.BookingRepository;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
+    private final UserServiceClient userServiceClient;
+    private final EventServiceClient eventServiceClient;
 
     @Override
     public BookingResponse createBooking(
             CreateBookingRequest request) {
+    	UserResponseDTO user =
+    	        userServiceClient.getUserById(request.getUserId());
+    	if(user==null)
+    	{
+    		throw new ResourceNotFoundException(
+					"User not found with id: " + request.getUserId());
+    	}
 
+    	EventResponseDTO event =
+    	        eventServiceClient.getEventById(request.getEventId());
+         		if(event==null)
+         		{
+         			throw new ResourceNotFoundException(
+        					"Event not found with id: " + request.getEventId());
+         		}
         BigDecimal totalAmount =
                 request.getTicketPrice()
                         .multiply(
