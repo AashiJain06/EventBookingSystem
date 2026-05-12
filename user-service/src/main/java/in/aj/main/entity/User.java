@@ -32,6 +32,10 @@ public class User {
     private String phoneNumber;
 
     private String city;
+    
+    private String password;
+    
+    private String role;
 
     private LocalDateTime createdAt;
 

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import in.aj.main.dto.AuthUserResponse;
 import in.aj.main.dto.CreateUserRequest;
 import in.aj.main.dto.UpdateUserRequest;
 import in.aj.main.dto.UserResponse;
@@ -57,5 +58,13 @@ public class UserController {
     public void deleteUser(@PathVariable Long id) {
 
         userService.deleteUser(id);
+    }
+    
+    @GetMapping("/email/{email}")
+    public AuthUserResponse getUserByEmail(
+            @PathVariable String email
+    ) 
+    {
+        return userService.getUserByEmail(email);
     }
 }

@@ -5,8 +5,10 @@ package in.aj.main.service;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import in.aj.main.dto.AuthUserResponse;
 import in.aj.main.dto.CreateUserRequest;
 import in.aj.main.dto.UpdateUserRequest;
 import in.aj.main.dto.UserResponse;
@@ -19,6 +21,7 @@ import in.aj.main.repository.UserRepository;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
@@ -37,6 +40,8 @@ public class UserServiceImpl implements UserService {
                 .email(request.getEmail())
                 .phoneNumber(request.getPhoneNumber())
                 .city(request.getCity())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -117,6 +122,24 @@ public class UserServiceImpl implements UserService {
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
+    }
+    
+    public AuthUserResponse getUserByEmail(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        AuthUserResponse response =
+                new AuthUserResponse();
+
+        response.setId(user.getId());
+        response.setName(user.getFirstName() + " " + user.getLastName());
+        response.setEmail(user.getEmail());
+        response.setPassword(user.getPassword());
+        response.setRole(user.getRole());
+
+        return response;
     }
 
 	

@@ -1,6 +1,7 @@
 package in.aj.main.dto;
 
 
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -29,4 +30,8 @@ public class CreateUserRequest {
     private String phoneNumber;
 
     private String city;
+
+	private String password;
+	
+	private String role;
 }
