@@ -30,6 +30,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserServiceClient userServiceClient;
     private final EventServiceClient eventServiceClient;
+    private final SeatLockService seatLockService;
 
     @Override
     public BookingResponse createBooking(
@@ -49,18 +50,51 @@ public class BookingServiceImpl implements BookingService {
          			throw new ResourceNotFoundException(
         					"Event not found with id: " + request.getEventId());
          		}
+         		for (String seat : request.getSelectedSeats()) {
+
+                    boolean alreadyBooked =
+                            bookingRepository.existsByEventIdAndSelectedSeatsContaining(
+                                    request.getEventId(),
+                                    seat
+                            );
+
+                    if (alreadyBooked) {
+                        throw new RuntimeException(
+                                "Seat already booked : " + seat
+                        );
+                    }
+                }
+
+                // ===============================
+                // STEP 2 -> LOCK SEATS IN REDIS
+                // ===============================
+
+                for (String seat : request.getSelectedSeats()) {
+
+                    boolean locked = seatLockService.lockSeat(seat);
+
+                    if (!locked) {
+                        throw new RuntimeException(
+                                "Seat temporarily locked : " + seat
+                        );
+                    }
+                }
+         		
         BigDecimal totalAmount =
                 request.getTicketPrice()
                         .multiply(
                                 BigDecimal.valueOf(
-                                        request.getNumberOfTickets()
+                                        request.getSelectedSeats().size()
                                 )
                         );
 
         Booking booking = Booking.builder()
                 .userId(request.getUserId())
                 .eventId(request.getEventId())
-                .numberOfTickets(request.getNumberOfTickets())
+                .numberOfTickets(request.getSelectedSeats().size())
+                .selectedSeats(
+                        String.join(",", request.getSelectedSeats())
+                )
                 .ticketPrice(request.getTicketPrice())
                 .totalAmount(totalAmount)
                 .bookingStatus(BookingStatus.CONFIRMED)
@@ -117,6 +151,7 @@ public class BookingServiceImpl implements BookingService {
                 .userId(booking.getUserId())
                 .eventId(booking.getEventId())
                 .numberOfTickets(booking.getNumberOfTickets())
+                .selectedSeats(booking.getSelectedSeats())
                 .ticketPrice(booking.getTicketPrice())
                 .totalAmount(booking.getTotalAmount())
                 .bookingStatus(booking.getBookingStatus())

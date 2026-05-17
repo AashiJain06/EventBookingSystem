@@ -4,8 +4,9 @@ package in.aj.main.dto;
 
 
 import java.math.BigDecimal;
+import java.util.List;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -22,9 +23,8 @@ public class CreateBookingRequest {
     @NotNull(message = "Event id is required")
     private Long eventId;
 
-    @NotNull(message = "Number of tickets required")
-    @Min(value = 1, message = "At least 1 ticket required")
-    private Integer numberOfTickets;
+    @NotEmpty(message = "At least one seat must be selected")
+    private List<String> selectedSeats;
 
     @NotNull(message = "Ticket price required")
     private BigDecimal ticketPrice;

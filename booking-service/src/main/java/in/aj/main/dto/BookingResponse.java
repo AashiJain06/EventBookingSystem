@@ -21,6 +21,8 @@ public class BookingResponse {
     private Long eventId;
 
     private Integer numberOfTickets;
+    
+    private String selectedSeats;
 
     private BigDecimal ticketPrice;
 

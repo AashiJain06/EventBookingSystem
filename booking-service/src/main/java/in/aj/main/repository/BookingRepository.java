@@ -6,4 +6,6 @@ import in.aj.main.entity.Booking;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
+	boolean existsByEventIdAndSelectedSeatsContaining(Long eventId, String seat);
+
 }

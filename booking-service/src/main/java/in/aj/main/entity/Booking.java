@@ -34,6 +34,9 @@ public class Booking {
 
     @Column(nullable = false)
     private BigDecimal ticketPrice;
+    
+    @Column(nullable = false)
+    private String selectedSeats;
 
     @Column(nullable = false)
     private BigDecimal totalAmount;
