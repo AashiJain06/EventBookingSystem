@@ -1,0 +1,164 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    networks:
+      - microservice-network
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - microservice-network
+
+  eureka-server:
+    build:
+      context: ../eureka-server
+    container_name: eureka-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8761:8761"
+    networks:
+      - microservice-network
+
+  config-server:
+    build:
+      context: ../config-server
+    container_name: config-server
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      # expose actuator endpoints so health endpoint is reachable
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka-server
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8888/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - microservice-network
+
+  user-service:
+    build:
+      context: ../user-service
+    container_name: user-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_CLOUD_CONFIG_RETRY_ENABLED: "true"
+      SPRING_CLOUD_CONFIG_RETRY_MAX_ATTEMPTS: "10"
+      SPRING_CLOUD_CONFIG_RETRY_INITIAL_INTERVAL: "1000"
+      SPRING_CLOUD_CONFIG_RETRY_MULTIPLIER: "1.5"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql
+      - redis
+      - eureka-server
+      - config-server
+    networks:
+      - microservice-network
+
+  event-service:
+    build:
+      context: ../event-service
+    container_name: event-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_CLOUD_CONFIG_RETRY_ENABLED: "true"
+      SPRING_CLOUD_CONFIG_RETRY_MAX_ATTEMPTS: "10"
+      SPRING_CLOUD_CONFIG_RETRY_INITIAL_INTERVAL: "1000"
+      SPRING_CLOUD_CONFIG_RETRY_MULTIPLIER: "1.5"
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mysql
+      - eureka-server
+      - config-server
+    networks:
+      - microservice-network
+
+  auth-service:
+    build:
+      context: ../auth-service
+    container_name: auth-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_CLOUD_CONFIG_RETRY_ENABLED: "true"
+      SPRING_CLOUD_CONFIG_RETRY_MAX_ATTEMPTS: "10"
+      SPRING_CLOUD_CONFIG_RETRY_INITIAL_INTERVAL: "1000"
+      SPRING_CLOUD_CONFIG_RETRY_MULTIPLIER: "1.5"
+    ports:
+      - "8084:8084"
+    depends_on:
+      - mysql
+      - eureka-server
+      - config-server
+    networks:
+      - microservice-network
+
+  booking-service:
+    build:
+      context: ../booking-service
+    container_name: booking-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_CLOUD_CONFIG_RETRY_ENABLED: "true"
+      SPRING_CLOUD_CONFIG_RETRY_MAX_ATTEMPTS: "10"
+      SPRING_CLOUD_CONFIG_RETRY_INITIAL_INTERVAL: "1000"
+      SPRING_CLOUD_CONFIG_RETRY_MULTIPLIER: "1.5"
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mysql
+      - redis
+      - eureka-server
+      - config-server
+      - user-service
+      - event-service
+    networks:
+      - microservice-network
+
+  api-gateway:
+    build:
+      context: ../api-gateway
+    container_name: api-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_CLOUD_CONFIG_RETRY_ENABLED: "true"
+      SPRING_CLOUD_CONFIG_RETRY_MAX_ATTEMPTS: "10"
+      SPRING_CLOUD_CONFIG_RETRY_INITIAL_INTERVAL: "1000"
+      SPRING_CLOUD_CONFIG_RETRY_MULTIPLIER: "1.5"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - booking-service
+      - auth-service
+      - event-service
+      - eureka-server
+    networks:
+      - microservice-network
+
+networks:
+  microservice-network:
+    driver: bridge
