@@ -34,14 +34,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponse createBooking(
-            CreateBookingRequest request) {
-    	UserResponseDTO user =
-    	        userServiceClient.getUserById(request.getUserId());
-    	if(user==null)
-    	{
-    		throw new ResourceNotFoundException(
-					"User not found with id: " + request.getUserId());
-    	}
+            CreateBookingRequest request,Long userId ,String email) {
+    	
 
     	EventResponseDTO event =
     	        eventServiceClient.getEventById(request.getEventId());
@@ -81,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
                 }
          		
         BigDecimal totalAmount =
-                request.getTicketPrice()
+                event.getTicketPrice()
                         .multiply(
                                 BigDecimal.valueOf(
                                         request.getSelectedSeats().size()
@@ -89,13 +83,13 @@ public class BookingServiceImpl implements BookingService {
                         );
 
         Booking booking = Booking.builder()
-                .userId(request.getUserId())
+                .userId(userId)
                 .eventId(request.getEventId())
                 .numberOfTickets(request.getSelectedSeats().size())
                 .selectedSeats(
                         String.join(",", request.getSelectedSeats())
                 )
-                .ticketPrice(request.getTicketPrice())
+                .ticketPrice(event.getTicketPrice())
                 .totalAmount(totalAmount)
                 .bookingStatus(BookingStatus.CONFIRMED)
                 .build();

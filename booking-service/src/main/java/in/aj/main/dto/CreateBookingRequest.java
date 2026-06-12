@@ -17,8 +17,6 @@ import lombok.*;
 @Builder
 public class CreateBookingRequest {
 
-    @NotNull(message = "User id is required")
-    private Long userId;
 
     @NotNull(message = "Event id is required")
     private Long eventId;
@@ -26,6 +24,5 @@ public class CreateBookingRequest {
     @NotEmpty(message = "At least one seat must be selected")
     private List<String> selectedSeats;
 
-    @NotNull(message = "Ticket price required")
-    private BigDecimal ticketPrice;
+    
 }

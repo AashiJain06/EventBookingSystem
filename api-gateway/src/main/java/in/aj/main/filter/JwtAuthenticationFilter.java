@@ -73,6 +73,11 @@ public class JwtAuthenticationFilter
 
         String role =
                 jwtUtil.extractRole(token);
+        String email =
+                jwtUtil.extractEmail(token);
+
+        Long userId =
+                jwtUtil.extractUserId(token);
 
         // =========================
         // ADMIN ONLY APIs
@@ -103,7 +108,28 @@ public class JwtAuthenticationFilter
         }
 
         // FORWARD REQUEST
-        return chain.filter(exchange);
+        ServerWebExchange modifiedExchange =
+                exchange.mutate()
+                        .request(
+                                exchange.getRequest()
+                                        .mutate()
+                                        .header(
+                                                "X-User-Email",
+                                                email
+                                        )
+                                        .header(
+                                                "X-User-Id",
+                                                String.valueOf(userId)
+                                        )
+                                        .header(
+                                                "X-User-Role",
+                                                role
+                                        )
+                                        .build()
+                        )
+                        .build();
+
+        return chain.filter(modifiedExchange);
     }
 
     @Override

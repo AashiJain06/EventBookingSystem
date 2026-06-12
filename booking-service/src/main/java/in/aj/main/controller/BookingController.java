@@ -23,9 +23,13 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookingResponse createBooking(
-            @Valid @RequestBody CreateBookingRequest request) {
+            @Valid @RequestBody CreateBookingRequest request, @RequestHeader("X-User-Id")
+            Long userId,
 
-        return bookingService.createBooking(request);
+            @RequestHeader("X-User-Email")
+            String email) {
+
+        return bookingService.createBooking(request , userId , email);
     }
 
     @GetMapping("/{id}")

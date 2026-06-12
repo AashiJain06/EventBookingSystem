@@ -2,6 +2,7 @@ package in.aj.main.dto;
 
 
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class EventResponseDTO {
@@ -9,18 +10,28 @@ public class EventResponseDTO {
     private Long id;
     private String eventName;
     private String venue;
-    private LocalDateTime eventDate;
+    private BigDecimal ticketPrice;
+    public BigDecimal getTicketPrice() {
+		return ticketPrice;
+	}
+
+	public void setTicketPrice(BigDecimal ticketPrice) {
+		this.ticketPrice = ticketPrice;
+	}
+
+	private LocalDateTime eventDate;
 
     public EventResponseDTO() {
     }
 
     public EventResponseDTO(Long id, String eventName,
                             String venue,
-                            LocalDateTime eventDate) {
+                            LocalDateTime eventDate,BigDecimal ticketPrice) {
         this.id = id;
         this.eventName = eventName;
         this.venue = venue;
         this.eventDate = eventDate;
+        this.ticketPrice = ticketPrice;
     }
 
     public Long getId() {

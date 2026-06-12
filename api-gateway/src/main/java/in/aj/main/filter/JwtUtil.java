@@ -42,6 +42,21 @@ public class JwtUtil {
 
         return claims.get("role", String.class);
     }
+    //Extract userId
+    public Long extractUserId(String token) {
+
+		Key key =
+				Keys.hmacShaKeyFor(secret.getBytes());
+
+		Claims claims =
+				Jwts.parserBuilder()
+						.setSigningKey(key)
+						.build()
+						.parseClaimsJws(token)
+						.getBody();
+
+		return claims.get("userId", Long.class);
+	}
 
     // Extract email
     public String extractEmail(String token) {

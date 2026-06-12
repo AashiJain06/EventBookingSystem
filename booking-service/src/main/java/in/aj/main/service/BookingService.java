@@ -9,7 +9,7 @@ import in.aj.main.dto.CreateBookingRequest;
 
 public interface BookingService {
 
-    BookingResponse createBooking(CreateBookingRequest request);
+    BookingResponse createBooking(CreateBookingRequest request,Long userId,String email);
 
     BookingResponse getBookingById(Long id);
 
