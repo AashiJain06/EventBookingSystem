@@ -17,7 +17,7 @@ public interface BookingService {
 
     Page<BookingResponse> getAllBookings(int page, int size);
 
-    BookingResponse cancelBooking(Long id);
+    BookingResponse cancelBooking(Long id , Long userId);
     
-    List<BookingResponse> getMyBooking(Long userId);
+    List<BookingResponse> getMyBooking(Long userId );
 }

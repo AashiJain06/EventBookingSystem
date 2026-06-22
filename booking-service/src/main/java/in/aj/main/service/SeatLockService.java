@@ -14,9 +14,12 @@ public class SeatLockService {
 
     private final StringRedisTemplate redisTemplate;
 
-    public boolean lockSeat(String seatId) {
+    public boolean lockSeat(String seatId , Long eventId) {
 
-        String key = "seat:" + seatId;
+        String key = "seat:"
+                + eventId
+                + ":"
+                + seatId;;
 
         Boolean success = redisTemplate
                 .opsForValue()
@@ -24,4 +27,10 @@ public class SeatLockService {
 
         return Boolean.TRUE.equals(success);
     }
+
+	public void unlockSeat(Long eventId, String seat) {
+		
+		String key = "seat:" + eventId + ":" + seat;
+		redisTemplate.delete(key);
+	}
 }

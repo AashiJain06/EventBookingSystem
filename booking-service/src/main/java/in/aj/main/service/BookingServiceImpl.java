@@ -4,6 +4,7 @@ package in.aj.main.service;
 
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,7 +66,7 @@ public class BookingServiceImpl implements BookingService {
 
                 for (String seat : request.getSelectedSeats()) {
 
-                    boolean locked = seatLockService.lockSeat(seat);
+                    boolean locked = seatLockService.lockSeat(seat , request.getEventId());
 
                     if (!locked) {
                         throw new RuntimeException(
@@ -122,19 +123,48 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingResponse cancelBooking(Long id) {
+    public BookingResponse cancelBooking(Long bookingId , Long userId) {
 
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Booking not found with id: " + id));
+    	Booking booking =
+                bookingRepository
+                        .findById(bookingId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Booking not found"));
 
-        booking.setBookingStatus(BookingStatus.CANCELLED);
+        if(!booking.getUserId().equals(userId)) {
 
-        Booking updatedBooking =
-                bookingRepository.save(booking);
+            throw new RuntimeException(
+                    "Access Denied");
+        }
 
-        return mapToResponse(updatedBooking);
+        if(booking.getBookingStatus()
+                == BookingStatus.CANCELLED) {
+
+            throw new RuntimeException(
+                    "Booking already cancelled");
+        }
+
+        booking.setBookingStatus(
+                BookingStatus.CANCELLED);
+
+        List<String> seats =
+                Arrays.asList(
+                        booking.getSelectedSeats()
+                                .split(","));
+
+        for(String seat : seats) {
+
+            seatLockService.unlockSeat(
+                    booking.getEventId(),
+                    seat);
+        }
+
+        Booking saved =
+                bookingRepository.save(
+                        booking);
+
+        return mapToResponse(saved);
     }
 
     private BookingResponse mapToResponse(

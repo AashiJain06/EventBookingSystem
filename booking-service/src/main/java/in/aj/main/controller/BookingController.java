@@ -52,9 +52,9 @@ public class BookingController {
 
     @PutMapping("/{id}/cancel")
     public BookingResponse cancelBooking(
-            @PathVariable Long id) {
+            @PathVariable Long id , @RequestHeader("X-User-Id") Long userId) {
 
-        return bookingService.cancelBooking(id);
+        return bookingService.cancelBooking(id , userId);
     }
     @GetMapping("/my-bookings")
     public ResponseEntity<List<BookingResponse>>

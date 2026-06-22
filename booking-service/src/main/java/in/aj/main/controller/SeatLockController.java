@@ -16,11 +16,11 @@ public class SeatLockController {
     @PostMapping("/lock/{seatId}")
     public String lockSeat(@PathVariable String seatId) {
 
-        boolean locked = seatLockService.lockSeat(seatId);
-
-        if (locked) {
-            return "Seat locked successfully";
-        }
+//        boolean locked = seatLockService.lockSeat(seatId);
+//
+//        if (locked) {
+//            return "Seat locked successfully";
+//        }
 
         return "Seat already locked";
     }
