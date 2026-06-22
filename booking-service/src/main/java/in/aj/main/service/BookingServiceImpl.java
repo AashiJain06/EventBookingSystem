@@ -4,8 +4,8 @@ package in.aj.main.service;
 
 
 import java.math.BigDecimal;
-
-
+import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -154,4 +154,15 @@ public class BookingServiceImpl implements BookingService {
                 .updatedAt(booking.getUpdatedAt())
                 .build();
     }
+
+	@Override
+	public List<BookingResponse> getMyBooking(Long userId) {
+        // bookingRepository.findByUserId(...) returns a list of Booking entities
+        // so keep the variable type as List<Booking> and then map to BookingResponse
+        List<Booking> bookings = bookingRepository.findByUserId(userId);
+
+        return bookings.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+	}
 }

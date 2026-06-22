@@ -2,6 +2,8 @@ package in.aj.main.service;
 
 
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 import in.aj.main.dto.BookingResponse;
@@ -16,4 +18,6 @@ public interface BookingService {
     Page<BookingResponse> getAllBookings(int page, int size);
 
     BookingResponse cancelBooking(Long id);
+    
+    List<BookingResponse> getMyBooking(Long userId);
 }

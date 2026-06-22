@@ -5,8 +5,11 @@ import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import in.aj.main.dto.BookingResponse;
@@ -52,5 +55,18 @@ public class BookingController {
             @PathVariable Long id) {
 
         return bookingService.cancelBooking(id);
+    }
+    @GetMapping("/my-bookings")
+    public ResponseEntity<List<BookingResponse>>
+    getMyBookings(
+
+            @RequestHeader("X-User-Id")
+            Long userId) {
+
+        return ResponseEntity.ok(
+
+                bookingService
+                        .getMyBooking(userId)
+        );
     }
 }
