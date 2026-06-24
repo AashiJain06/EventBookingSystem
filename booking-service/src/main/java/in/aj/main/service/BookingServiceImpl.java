@@ -23,6 +23,7 @@ import in.aj.main.exception.ResourceNotFoundException;
 import in.aj.main.feign.client.EventServiceClient;
 import in.aj.main.feign.client.UserServiceClient;
 import in.aj.main.repository.BookingRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,7 @@ public class BookingServiceImpl implements BookingService {
     private final SeatLockService seatLockService;
 
     @Override
+    @Transactional
     public BookingResponse createBooking(
             CreateBookingRequest request,Long userId ,String email) {
     	
@@ -74,7 +76,13 @@ public class BookingServiceImpl implements BookingService {
                         );
                     }
                 }
-         		
+                eventServiceClient.reduceSeats(
+
+                        request.getEventId(),
+
+                        request.getSelectedSeats()
+                                .size()
+                );
         BigDecimal totalAmount =
                 event.getTicketPrice()
                         .multiply(
@@ -95,9 +103,26 @@ public class BookingServiceImpl implements BookingService {
                 .bookingStatus(BookingStatus.CONFIRMED)
                 .build();
 
+        try
+        {
         Booking savedBooking = bookingRepository.save(booking);
-
         return mapToResponse(savedBooking);
+        }
+		catch(Exception e)
+		{
+			eventServiceClient.increaseSeats(
+
+					request.getEventId(),
+
+					request.getSelectedSeats()
+							.size()
+			);
+			throw new RuntimeException(
+					"Booking failed: " + e.getMessage()
+			);
+		}
+
+
     }
 
     @Override
@@ -123,6 +148,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingResponse cancelBooking(Long bookingId , Long userId) {
 
     	Booking booking =
@@ -159,7 +185,12 @@ public class BookingServiceImpl implements BookingService {
                     booking.getEventId(),
                     seat);
         }
+        eventServiceClient.increaseSeats(
 
+                booking.getEventId(),
+
+                booking.getNumberOfTickets()
+        );
         Booking saved =
                 bookingRepository.save(
                         booking);

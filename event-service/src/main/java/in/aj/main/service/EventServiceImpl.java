@@ -14,6 +14,7 @@ import in.aj.main.dto.UpdateEventRequest;
 import in.aj.main.entity.Event;
 import in.aj.main.exception.ResourceNotFoundException;
 import in.aj.main.repository.EventRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 
@@ -113,6 +114,49 @@ public class EventServiceImpl implements EventService {
                                 "Event not found with id: " + id));
 
         eventRepository.delete(event);
+    }
+    
+    @Override
+    @Transactional
+    public void reduceAvailableSeats(
+            Long eventId,
+            Integer count) {
+
+        Event event =
+                eventRepository.findById(eventId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Event not found"));
+
+        if(event.getAvailableSeats() < count) {
+
+            throw new RuntimeException(
+                    "Not enough seats available");
+        }
+
+        event.setAvailableSeats(
+                event.getAvailableSeats() - count
+        );
+
+        eventRepository.save(event);
+    }
+    @Override
+    @Transactional
+    public void increaseAvailableSeats(
+            Long eventId,
+            Integer count) {
+
+        Event event =
+                eventRepository.findById(eventId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Event not found"));
+
+        event.setAvailableSeats(
+                event.getAvailableSeats() + count
+        );
+
+        eventRepository.save(event);
     }
 
     private EventResponse mapToResponse(Event event) {

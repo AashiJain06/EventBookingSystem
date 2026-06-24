@@ -18,4 +18,12 @@ public interface EventService {
     EventResponse updateEvent(Long id, UpdateEventRequest request);
 
     void deleteEvent(Long id);
+    
+    void reduceAvailableSeats(
+            Long eventId,
+            Integer count);
+
+    void increaseAvailableSeats(
+            Long eventId,
+            Integer count);
 }

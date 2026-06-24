@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import in.aj.main.dto.CreateEventRequest;
@@ -56,5 +57,36 @@ public class EventController {
     public void deleteEvent(@PathVariable Long id) {
 
         eventService.deleteEvent(id);
+    }
+    
+    @PutMapping("/{eventId}/reduce-seats")
+    public ResponseEntity<Void> reduceSeats(
+
+            @PathVariable
+            Long eventId,
+
+            @RequestParam
+            Integer count) {
+
+        eventService.reduceAvailableSeats(
+                eventId,
+                count);
+
+        return ResponseEntity.ok().build();
+    }
+    @PutMapping("/{eventId}/increase-seats")
+    public ResponseEntity<Void> increaseSeats(
+
+            @PathVariable
+            Long eventId,
+
+            @RequestParam
+            Integer count) {
+
+        eventService.increaseAvailableSeats(
+                eventId,
+                count);
+
+        return ResponseEntity.ok().build();
     }
 }
