@@ -100,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
                 )
                 .ticketPrice(event.getTicketPrice())
                 .totalAmount(totalAmount)
-                .bookingStatus(BookingStatus.CONFIRMED)
+                .bookingStatus(BookingStatus.PENDING)
                 .build();
 
         try
@@ -122,7 +122,26 @@ public class BookingServiceImpl implements BookingService {
 			);
 		}
 
+  
+    }
+    @Override
+    @Transactional
+    public BookingResponse confirmBooking(
+            Long bookingId) {
 
+        Booking booking =
+                bookingRepository.findById(bookingId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Booking not found"));
+
+        booking.setBookingStatus(
+                BookingStatus.CONFIRMED
+        );
+
+        return mapToResponse(
+                bookingRepository.save(booking)
+        );
     }
 
     @Override

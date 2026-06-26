@@ -20,4 +20,6 @@ public interface BookingService {
     BookingResponse cancelBooking(Long id , Long userId);
     
     List<BookingResponse> getMyBooking(Long userId );
+    
+    BookingResponse confirmBooking(Long bookingId);
 }

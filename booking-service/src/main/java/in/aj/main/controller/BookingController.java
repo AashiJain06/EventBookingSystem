@@ -56,6 +56,16 @@ public class BookingController {
 
         return bookingService.cancelBooking(id , userId);
     }
+    
+    @PutMapping("/{id}/confirm")
+    public ResponseEntity<BookingResponse>
+    confirmBooking(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                bookingService.confirmBooking(id)
+        );
+    }
     @GetMapping("/my-bookings")
     public ResponseEntity<List<BookingResponse>>
     getMyBookings(
