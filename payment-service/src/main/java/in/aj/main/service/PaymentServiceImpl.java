@@ -3,20 +3,24 @@ package in.aj.main.service;
 import java.util.UUID;
 
 import in.aj.main.dto.BookingResponse;
+import in.aj.main.dto.EmailRequest;
 import in.aj.main.dto.PaymentRequest;
 import in.aj.main.dto.PaymentResponse;
 import in.aj.main.entity.Payment;
 import in.aj.main.entity.PaymentStatus;
 import in.aj.main.feign.cleint.BookingCleint;
+import in.aj.main.feign.cleint.NotificationClient;
 import in.aj.main.repository.PaymentRepository;
 
 public class PaymentServiceImpl implements PaymentService {
 
 	private final PaymentRepository paymentRepository;
 	private final BookingCleint bookingClient;
-	public PaymentServiceImpl(PaymentRepository paymentRepository, BookingCleint bookingClient) {
+	private final NotificationClient notificationClient;
+	public PaymentServiceImpl(PaymentRepository paymentRepository, BookingCleint bookingClient , NotificationClient notificationClient) {
 		this.paymentRepository = paymentRepository;
 		this.bookingClient = bookingClient;
+		this.notificationClient = notificationClient;
 	}
 	@Override
 	public PaymentResponse processPayment(PaymentRequest paymentRequest) {
@@ -47,6 +51,20 @@ public class PaymentServiceImpl implements PaymentService {
 			payment.setStatus(PaymentStatus.SUCCESS);
 			paymentRepository.save(payment);
 			bookingClient.confirmBooking(paymentRequest.getBookingId());
+			EmailRequest emailRequest =
+			        EmailRequest.builder()
+			        .to(booking.getEmail())
+			        .customerName(booking.getUserName())
+			        .eventName(booking.getEventName())
+			        .venue(booking.getVenue())
+			        .eventDate(booking.getEventDate())
+			        .seats(booking.getSelectedSeats())
+			        .amount(payment.getAmount())
+			        .transactionId(payment.getTransactionId())
+			        .build();
+
+
+			notificationClient.sendEmail(emailRequest);
 			return PaymentResponse.builder()
 					.paymentId(payment.getId())
 					.bookingId(payment.getBookingId())
