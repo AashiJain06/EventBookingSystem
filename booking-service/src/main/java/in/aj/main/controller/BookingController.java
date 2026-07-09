@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import in.aj.main.dto.BookingNotificationDetails;
 import in.aj.main.dto.BookingResponse;
 import in.aj.main.dto.CreateBookingRequest;
 import in.aj.main.service.BookingService;
@@ -58,7 +59,7 @@ public class BookingController {
     }
     
     @PutMapping("/{id}/confirm")
-    public ResponseEntity<BookingResponse>
+    public ResponseEntity<BookingNotificationDetails>
     confirmBooking(
             @PathVariable Long id) {
 

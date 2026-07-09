@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import in.aj.main.dto.BookingNotificationDetails;
 import in.aj.main.dto.BookingResponse;
 import in.aj.main.dto.CreateBookingRequest;
 import in.aj.main.dto.EventResponseDTO;
@@ -126,7 +127,7 @@ public class BookingServiceImpl implements BookingService {
     }
     @Override
     @Transactional
-    public BookingResponse confirmBooking(
+    public BookingNotificationDetails confirmBooking(
             Long bookingId) {
 
         Booking booking =
@@ -139,9 +140,29 @@ public class BookingServiceImpl implements BookingService {
                 BookingStatus.CONFIRMED
         );
 
-        return mapToResponse(
-                bookingRepository.save(booking)
-        );
+        Booking savedBooking =
+				bookingRepository.save(booking);
+        
+		UserResponseDTO user =
+				userServiceClient.getUserById(
+						savedBooking.getUserId());
+
+		EventResponseDTO event =
+				eventServiceClient.getEventById(
+						savedBooking.getEventId());
+
+		return BookingNotificationDetails.builder()
+				.bookingId(savedBooking.getId())
+				.userName(user.getName())
+				.userEmail(user.getEmail())
+				.eventName(event.getEventName())
+				.venue(event.getVenue())
+				.eventDate(event.getEventDate())
+				.seats(Arrays.asList(
+						savedBooking.getSelectedSeats()
+								.split(",")))
+				.amount(savedBooking.getTotalAmount())
+				.build();
     }
 
     @Override

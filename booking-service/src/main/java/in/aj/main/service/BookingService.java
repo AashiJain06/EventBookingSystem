@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import in.aj.main.dto.BookingNotificationDetails;
 import in.aj.main.dto.BookingResponse;
 import in.aj.main.dto.CreateBookingRequest;
 
@@ -21,5 +22,5 @@ public interface BookingService {
     
     List<BookingResponse> getMyBooking(Long userId );
     
-    BookingResponse confirmBooking(Long bookingId);
+    BookingNotificationDetails confirmBooking(Long bookingId);
 }

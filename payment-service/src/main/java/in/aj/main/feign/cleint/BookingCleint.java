@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
+import in.aj.main.dto.BookingNotificationDetails;
 import in.aj.main.dto.BookingResponse;
 
 @FeignClient(name = "booking-service")
@@ -20,7 +21,7 @@ public interface BookingCleint {
     @PutMapping(
             "/api/bookings/{id}/confirm"
     )
-    BookingResponse confirmBooking(
+    BookingNotificationDetails confirmBooking(
             @PathVariable Long id
     );
 

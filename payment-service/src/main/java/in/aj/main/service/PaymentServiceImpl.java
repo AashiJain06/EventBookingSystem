@@ -2,6 +2,7 @@ package in.aj.main.service;
 
 import java.util.UUID;
 
+import in.aj.main.dto.BookingNotificationDetails;
 import in.aj.main.dto.BookingResponse;
 import in.aj.main.dto.EmailRequest;
 import in.aj.main.dto.PaymentRequest;
@@ -50,17 +51,42 @@ public class PaymentServiceImpl implements PaymentService {
 			{
 			payment.setStatus(PaymentStatus.SUCCESS);
 			paymentRepository.save(payment);
-			bookingClient.confirmBooking(paymentRequest.getBookingId());
+			BookingNotificationDetails bookingDetails =  bookingClient.confirmBooking(paymentRequest.getBookingId());
 			EmailRequest emailRequest =
 			        EmailRequest.builder()
-			        .to(booking.getEmail())
-			        .customerName(booking.getUserName())
-			        .eventName(booking.getEventName())
-			        .venue(booking.getVenue())
-			        .eventDate(booking.getEventDate())
-			        .seats(booking.getSelectedSeats())
-			        .amount(payment.getAmount())
-			        .transactionId(payment.getTransactionId())
+
+			        .to(
+			            bookingDetails.getUserEmail()
+			        )
+
+			        .customerName(
+			            bookingDetails.getUserName()
+			        )
+
+			        .eventName(
+			            bookingDetails.getEventName()
+			        )
+
+			        .venue(
+			            bookingDetails.getVenue()
+			        )
+
+			        .eventDate(
+			            bookingDetails.getEventDate()
+			        )
+
+			        .seats(
+			            bookingDetails.getSeats()
+			        )
+
+			        .amount(
+			            payment.getAmount()
+			        )
+
+			        .transactionId(
+			            payment.getTransactionId()
+			        )
+
 			        .build();
 
 
