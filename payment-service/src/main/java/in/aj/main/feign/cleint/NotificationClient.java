@@ -9,7 +9,7 @@ import in.aj.main.dto.EmailResponse;
 @FeignClient(name = "notification-service")
 public interface NotificationClient {
 	
-	@PostMapping("/api/notification/email")
+	@PostMapping("/api/notifications/email")
 	EmailResponse sendEmail(EmailRequest request);
 
 }

@@ -2,6 +2,8 @@ package in.aj.main.service;
 
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
+
 import in.aj.main.dto.BookingNotificationDetails;
 import in.aj.main.dto.BookingResponse;
 import in.aj.main.dto.EmailRequest;
@@ -12,7 +14,10 @@ import in.aj.main.entity.PaymentStatus;
 import in.aj.main.feign.cleint.BookingCleint;
 import in.aj.main.feign.cleint.NotificationClient;
 import in.aj.main.repository.PaymentRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
+
+@Service
 public class PaymentServiceImpl implements PaymentService {
 
 	private final PaymentRepository paymentRepository;
@@ -90,7 +95,7 @@ public class PaymentServiceImpl implements PaymentService {
 			        .build();
 
 
-			notificationClient.sendEmail(emailRequest);
+			sendNotification(emailRequest);
 			return PaymentResponse.builder()
 					.paymentId(payment.getId())
 					.bookingId(payment.getBookingId())
@@ -122,6 +127,28 @@ public class PaymentServiceImpl implements PaymentService {
 		                    .substring(0,12)
 		                    .toUpperCase();
 
+		}
+		
+		@CircuitBreaker(
+		        name = "notificationService",
+		        fallbackMethod = "notificationFallback"
+		)
+		public void sendNotification(
+		        EmailRequest emailRequest) {
+
+		    notificationClient.sendEmail(emailRequest);
+
+		}
+		
+		public void notificationFallback(
+		        EmailRequest emailRequest,
+		        Throwable ex) {
+
+		    System.out.println("=================================");
+		    System.out.println("Notification Service is DOWN");
+		    System.out.println("Email will be sent later.");
+		    System.out.println("Reason : " + ex.getMessage());
+		    System.out.println("=================================");
 		}
 	}
 
