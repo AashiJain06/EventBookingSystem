@@ -15,6 +15,7 @@ import in.aj.main.feign.cleint.BookingCleint;
 import in.aj.main.feign.cleint.NotificationClient;
 import in.aj.main.repository.PaymentRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 
 
 @Service
@@ -129,6 +130,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 		}
 		
+		@Retry(name = "notificationRetry")
 		@CircuitBreaker(
 		        name = "notificationService",
 		        fallbackMethod = "notificationFallback"
@@ -136,6 +138,7 @@ public class PaymentServiceImpl implements PaymentService {
 		public void sendNotification(
 		        EmailRequest emailRequest) {
 
+			System.out.println("Trying to send email");
 		    notificationClient.sendEmail(emailRequest);
 
 		}
